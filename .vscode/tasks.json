@@ -1,0 +1,63 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CATKIN: Build All Packages",
+            "type": "catkin_build",
+            "task": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": false  
+            },
+            "problemMatcher": [
+                "$catkin-gcc",
+                "$catkin-cmake"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "options": {
+                "statusbar": {
+                    "hide" : false
+                }
+            }
+        },
+        {
+            "label": "CATKIN: Build Current Package",
+            "type": "catkin_build",
+            "task": "build current package",
+            "group": {
+                "kind": "build",
+                "isDefault": true  
+            },
+            "problemMatcher": [
+                "$catkin-gcc",
+                "$catkin-cmake"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "options": {
+                "statusbar": {
+                    "hide" : false
+                }
+            }
+        },
+        {
+            "label": "CATKIN: Clean Workspace",
+            "type": "catkin_build",
+            "group": "build",
+            "task": "clean",
+            "problemMatcher": [
+                "$catkin-gcc",
+                "$catkin-cmake"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}

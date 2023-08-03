@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.eol": "\n",
+		"python.analysis.extraPaths": [
+			"/opt/ros/noetic/lib/python3/dist-packages",
+			"devel/lib/python3/dist-packages",
+			"src/ros_python_pkg/src"
+		],
+		"python.autoComplete.extraPaths": [
+			"/opt/ros/noetic/lib/python3/dist-packages",
+			"devel/lib/python3/dist-packages",
+			"src/ros_python_pkg/src"
+		],
+		"ros.distro": "noetic"
+	}
+}
