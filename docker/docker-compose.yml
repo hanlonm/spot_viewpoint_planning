@@ -9,4 +9,4 @@ services:
       - "ROS_MASTER_URI=${ROS_MASTER_URI}"
     volumes:
       - ./../src:/workspace/src
-    command:  roscore
+    command:  bash -c "catkin build spot_viewpoint_planning && source devel/setup.bash && rosrun spot_viewpoint_planning spot_viewpoint_planning.py"
