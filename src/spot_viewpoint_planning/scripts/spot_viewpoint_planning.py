@@ -7,10 +7,13 @@ from geometry_msgs.msg import Pose, PoseStamped
 
 class SpotViewpointPlanner:
     def __init__(self) -> None:
-        self.test_service = rospy.Service("test_spot_movements", Empty,)
+        
+        self.test_service = rospy.Service("test_spot_movements", Empty, self.test_srvice_cb)
         self.gripper_pose_proxy = rospy.ServiceProxy("/spot/gripper_pose", HandPose)
 
         self.move_spot_pub = rospy.Publisher("/spot/go_to_pose", PoseStamped)
+        rospy.loginfo("Spot viewpoint planner running")
+        
 
     def test_srvice_cb(self, req: EmptyRequest):
         gripper_request = HandPoseRequest()
