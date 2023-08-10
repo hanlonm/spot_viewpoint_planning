@@ -8,6 +8,7 @@ from pytransform3d import rotations as pr
 
 from spot_msgs.srv import HandPose, HandPoseRequest, HandPoseResponse, ArmJointMovement, ArmJointMovementRequest, ArmJointMovementResponse
 from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
+from std_msgs.msg import String
 from geometry_msgs.msg import Pose, PoseStamped, TransformStamped
 import tf2_ros
 
@@ -132,6 +133,8 @@ class SpotViewpointPlanner:
 
         self.plan_viewpoint_pub = rospy.Publisher("plan_viewpoint", TransformStamped)
         self.plan_viewpoint_result_sub = rospy.Subscriber("plan_viewpoint_result_loc_cam", PoseStamped, self.viewpoint_result_cb)
+
+        self.change_mode_pub = rospy.Publisher("planner_mode", String)
 
         self.goal_pose_sub = rospy.Subscriber("/goal_pose", PoseStamped, self.goal_pose_cb)
 
