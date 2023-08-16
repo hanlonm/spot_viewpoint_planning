@@ -10,3 +10,14 @@ services:
     volumes:
       - ./../src:/workspace/src
     command:  bash -c "catkin build spot_viewpoint_planning && source devel/setup.bash && rosrun spot_viewpoint_planning spot_viewpoint_planning.py"
+
+  april_tag_detection:
+    image: spot_viewpoint_planning:0.0.1
+    network_mode: "host"
+    container_name: april_tag_detection
+    environment:
+      - "ROS_HOSTNAME=${ROS_HOSTNAME}"
+      - "ROS_MASTER_URI=${ROS_MASTER_URI}"
+    volumes:
+      - ./../src:/workspace/src
+    command:  bash -c "rosdep install --from-paths src --ignore-src -r -y && catkin build apriltag_ros && source devel/setup.bash && roslaunch apriltag_ros continuous_detection.launch"
