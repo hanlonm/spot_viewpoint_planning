@@ -18,6 +18,8 @@ class SpotViewpointPlanner:
         
         self.test_service = rospy.Service("query_viewpoint", Empty, self.query_viewpoint_cb)
         self.next_wp_service = rospy.Service("next_waypoint", Empty, self.next_waypoint_cb)
+        self.start_experiment_service = rospy.Service("start_experiment", Empty, self.start_experiment_cb)
+        self.test_method_service = rospy.Service("test_method", Empty, self.test_method_cb)
         self.home_arm_service = rospy.Service("home_arm", Empty, self.home_arm_cb)
         self.gripper_pose_proxy = rospy.ServiceProxy("/spot/gripper_pose", HandPose)
 
@@ -54,6 +56,9 @@ class SpotViewpointPlanner:
                           [11.224780082702637, -4.262598514556885, 0.0, 0.7292919090780428, 0.0, 0.0, -0.6842026829480455],
                           [12.032266616821289, -4.588181495666504, 0.0, 0.9983694875169599, 0.0, 0.0, 0.05708210223111083],
                           ]
+        
+        self.experiment_modes = ["mlp_clf", "trf_clf", "angle_crit", "max_crit", "fisher_info", "random"]
+        self.exp_mode_it = 0
         
         """
 
@@ -158,6 +163,26 @@ class SpotViewpointPlanner:
         self.arm_angle_proxy.call(self.base_arm_angles_request)
 
         return EmptyResponse()
+    
+    def start_experiment_cb(self, req: EmptyRequest):
+        self.exp_mode_it = 0
+        self.arm_angle_proxy.call(self.base_arm_angles_request)
+
+    def test_method_cb(self, req: EmptyRequest):
+        self.arm_angle_proxy.call(self.base_arm_angles_request)
+        if self.exp_mode_it == len(self.experiment_modes):
+            self.exp_mode_it == 0
+        mode = self.experiment_modes[self.exp_mode_it]
+        mode_msg = String()
+        mode_msg.data = mode
+        self.change_mode_pub.publish(mode_msg)
+        rospy.sleep(3.)
+        self.plan_viewpoint()
+
+        self.exp_mode_it += 1
+
+        return EmptyResponse()
+
     
     def next_waypoint_cb(self, req: EmptyRequest):
         self.go_to_map_pose()
