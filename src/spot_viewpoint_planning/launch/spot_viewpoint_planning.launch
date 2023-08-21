@@ -1,0 +1,3 @@
+<launch>
+    <node name="spot_viewpoint_planning" pkg="spot_viewpoint_planning" type="spot_viewpoint_planning.py" output="screen"/>
+</launch>
