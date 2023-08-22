@@ -180,7 +180,7 @@ class SpotViewpointPlanner:
     
     def gt_loc_cb(self, req: EmptyRequest):
         try:
-            gt_folder = self.current_exp_dir + "gt"
+            gt_folder = self.current_exp_dir + "gt/"
             os.mkdir(gt_folder)
             current_image = self.bridge.imgmsg_to_cv2(
                 self.current_image_msg, desired_encoding="passthrough")
