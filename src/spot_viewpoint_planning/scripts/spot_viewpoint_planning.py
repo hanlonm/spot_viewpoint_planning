@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+from datetime import datetime
 import rospy
 import numpy as np
 import random
@@ -171,8 +172,8 @@ class SpotViewpointPlanner:
 
     def new_experiment_cb(self, req: EmptyRequest):
         print("new experiment")
-        time = rospy.Time.now()
-        folder_name = str(time.secs)
+        current_datetime = datetime.now()
+        folder_name = current_datetime.strftime("%y-%m-%d-%H-%M-%S")
         self.current_exp_dir = self.output_dir + "/" + folder_name
         os.mkdir(self.current_exp_dir)
 
