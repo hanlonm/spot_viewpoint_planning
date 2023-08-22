@@ -191,7 +191,7 @@ class SpotViewpointPlanner:
                 target_frame="hand_color_image_sensor", source_frame="body", time=rospy.Time(0), timeout=rospy.Duration(1.0))
             tf_dict["tf_map_body"] = self.tf_buffer.lookup_transform(
                 target_frame="map", source_frame="body", time=rospy.Time(0), timeout=rospy.Duration(1.0))
-            pose_file = open(gt_folder + "/" "pose_file", "w")
+            pose_file = open(gt_folder + "/" "pose_file.txt", "w")
             pose_file.write("# tf_target_source tx ty tz qw qx qy qz")
 
             for tf in tf_dict.keys():
@@ -217,6 +217,7 @@ class SpotViewpointPlanner:
             os.mkdir(method_folder)
             current_image = self.bridge.imgmsg_to_cv2(
                 self.current_image_msg, desired_encoding="passthrough")
+            current_image = cv2.cvtColor(current_image, cv2.COLOR_BGR2RGB)
             tf_dict = {}
             tf_dict["tf_map_bodyest"] = self.tf_buffer.lookup_transform(
                 target_frame="map", source_frame="body_est", time=rospy.Time(0), timeout=rospy.Duration(1.0))
@@ -224,7 +225,7 @@ class SpotViewpointPlanner:
                 target_frame="hand_color_image_sensor", source_frame="body", time=rospy.Time(0), timeout=rospy.Duration(1.0))
             tf_dict["tf_map_body"] = self.tf_buffer.lookup_transform(
                 target_frame="map", source_frame="body", time=rospy.Time(0), timeout=rospy.Duration(1.0))
-            pose_file = open(method_folder + "/" "pose_file", "w")
+            pose_file = open(method_folder + "/" "pose_file.txt", "w")
             pose_file.write("# tf_target_source tx ty tz qw qx qy qz")
 
             for tf in tf_dict.keys():
@@ -282,6 +283,43 @@ class SpotViewpointPlanner:
         self.plan_viewpoint()
 
         self.exp_mode_it += 1
+
+        return EmptyResponse()
+    
+    def save_forward(self, req: EmptyRequest):
+        self.arm_angle_proxy.call(self.base_arm_angles_request)
+        rospy.sleep(3.)
+        try:
+            method_folder = self.current_exp_dir + "/forwards"
+            os.mkdir(method_folder)
+            current_image = self.bridge.imgmsg_to_cv2(
+                self.current_image_msg, desired_encoding="passthrough")
+            current_image = cv2.cvtColor(current_image, cv2.COLOR_BGR2RGB)
+            tf_dict = {}
+            tf_dict["tf_map_bodyest"] = self.tf_buffer.lookup_transform(
+                target_frame="map", source_frame="body_est", time=rospy.Time(0), timeout=rospy.Duration(1.0))
+            tf_dict["tf_cam_body"] = self.tf_buffer.lookup_transform(
+                target_frame="hand_color_image_sensor", source_frame="body", time=rospy.Time(0), timeout=rospy.Duration(1.0))
+            tf_dict["tf_map_body"] = self.tf_buffer.lookup_transform(
+                target_frame="map", source_frame="body", time=rospy.Time(0), timeout=rospy.Duration(1.0))
+            pose_file = open(method_folder + "/" "pose_file.txt", "w")
+            pose_file.write("# tf_target_source tx ty tz qw qx qy qz")
+
+            for tf in tf_dict.keys():
+                transform: TransformStamped = tf_dict[tf]
+                pq = [transform.transform.translation.x,
+                      transform.transform.translation.y,
+                      transform.transform.translation.z,
+                      transform.transform.rotation.w,
+                      transform.transform.rotation.x,
+                      transform.transform.rotation.y,
+                      transform.transform.rotation.z]
+                pose_file.write("\n" + str(tf) + " " + " ".join(map(str, pq)))
+
+            cv2.imwrite(method_folder + "/loc_image.jpg", current_image)
+
+        except Exception as e:
+            print(e)
 
         return EmptyResponse()
 
