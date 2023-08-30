@@ -161,6 +161,8 @@ class SpotViewpointPlanner:
         self.new_exp_service = rospy.Service("new_experiment", Empty, self.new_experiment_cb)
         self.gt_loc_service = rospy.Service("gt_loc", Empty, self.gt_loc_cb)
         self.save_current_service = rospy.Service("save_current", Empty, self.save_current_cb)
+        self.save_forward_service = rospy.Service("save_forward", Empty, self.save_forward)
+        self.save_forward_low_service = rospy.Service("save_low_forward", Empty, self.save_low_forward)
 
 
 
@@ -181,10 +183,11 @@ class SpotViewpointPlanner:
     
     def gt_loc_cb(self, req: EmptyRequest):
         try:
-            gt_folder = self.current_exp_dir + "gt/"
+            gt_folder = self.current_exp_dir + "/gt"
             os.mkdir(gt_folder)
             current_image = self.bridge.imgmsg_to_cv2(
                 self.current_image_msg, desired_encoding="passthrough")
+            current_image = cv2.cvtColor(current_image, cv2.COLOR_BGR2RGB)
             tf_dict = {}
             tf_dict["tf_cam_tag"] = self.tf_buffer.lookup_transform(
                 target_frame="hand_color_image_sensor", source_frame="tag_2", time=rospy.Time(0), timeout=rospy.Duration(1.0))
@@ -218,7 +221,7 @@ class SpotViewpointPlanner:
             os.mkdir(method_folder)
             current_image = self.bridge.imgmsg_to_cv2(
                 self.current_image_msg, desired_encoding="passthrough")
-            current_image = cv2.cvtColor(current_image, cv2.COLOR_BGR2RGB)
+            current_image = cv2.cvtColor(current_image.copy(), cv2.COLOR_BGR2RGB)
             tf_dict = {}
             tf_dict["tf_map_bodyest"] = self.tf_buffer.lookup_transform(
                 target_frame="map", source_frame="body_est", time=rospy.Time(0), timeout=rospy.Duration(1.0))
@@ -252,10 +255,13 @@ class SpotViewpointPlanner:
         arm_angles = self.base_arm_angles.copy()
         arm_angles[0] = arm_angles[0] + euler_zyx[0]
         arm_angles[4] = arm_angles[4] + euler_zyx[1]
+        print(arm_angles)
         arm_angles_req = ArmJointMovementRequest()
         arm_angles_req.joint_target = arm_angles
         print(arm_angles)
+        # for _ in range(3):
         self.arm_angle_proxy.call(arm_angles_req)
+        #     rospy.sleep(0.5)
 
     def query_viewpoint_cb(self, req: EmptyRequest):
         self.plan_viewpoint()
@@ -292,6 +298,41 @@ class SpotViewpointPlanner:
         rospy.sleep(3.)
         try:
             method_folder = self.current_exp_dir + "/forwards"
+            os.mkdir(method_folder)
+            current_image = self.bridge.imgmsg_to_cv2(
+                self.current_image_msg, desired_encoding="passthrough")
+            current_image = cv2.cvtColor(current_image, cv2.COLOR_BGR2RGB)
+            tf_dict = {}
+            tf_dict["tf_map_bodyest"] = self.tf_buffer.lookup_transform(
+                target_frame="map", source_frame="body_est", time=rospy.Time(0), timeout=rospy.Duration(1.0))
+            tf_dict["tf_cam_body"] = self.tf_buffer.lookup_transform(
+                target_frame="hand_color_image_sensor", source_frame="body", time=rospy.Time(0), timeout=rospy.Duration(1.0))
+            tf_dict["tf_map_body"] = self.tf_buffer.lookup_transform(
+                target_frame="map", source_frame="body", time=rospy.Time(0), timeout=rospy.Duration(1.0))
+            pose_file = open(method_folder + "/" "pose_file.txt", "w")
+            pose_file.write("# tf_target_source tx ty tz qw qx qy qz")
+
+            for tf in tf_dict.keys():
+                transform: TransformStamped = tf_dict[tf]
+                pq = [transform.transform.translation.x,
+                      transform.transform.translation.y,
+                      transform.transform.translation.z,
+                      transform.transform.rotation.w,
+                      transform.transform.rotation.x,
+                      transform.transform.rotation.y,
+                      transform.transform.rotation.z]
+                pose_file.write("\n" + str(tf) + " " + " ".join(map(str, pq)))
+
+            cv2.imwrite(method_folder + "/loc_image.jpg", current_image)
+
+        except Exception as e:
+            print(e)
+
+        return EmptyResponse()
+    
+    def save_low_forward(self, req: EmptyRequest):
+        try:
+            method_folder = self.current_exp_dir + "/low_forwards"
             os.mkdir(method_folder)
             current_image = self.bridge.imgmsg_to_cv2(
                 self.current_image_msg, desired_encoding="passthrough")

@@ -7,7 +7,10 @@
 
     <node pkg="tf" type="static_transform_publisher" name="map_world" args="0 0 0 0 0 0 1 world map 100"  />
     <node pkg="tf" type="static_transform_publisher" name="map_to_colmap" args="0 0 0 -0.5 0.5 -0.5 0.5 map colmap 100"  />
-    <node pkg="tf" type="static_transform_publisher" name="map_to_loc_tag" args="-2.17477406 11.42068027 -1.27173373 0.48829861 0.52041095 0.50712047 0.48328639 map loc_tag 100"  />
+    <!-- DLAB-5 -->
+    <!-- <node pkg="tf" type="static_transform_publisher" name="map_to_loc_tag" args="-2.17477406 11.42068027 -1.27173373 0.48829861 0.52041095 0.50712047 0.48328639 map loc_tag 100"  /> -->
+    <!-- DLAB_6 -->
+    <node pkg="tf" type="static_transform_publisher" name="map_to_loc_tag" args="-1.13776969 12.32275195 -1.2510244 0.50360047  0.50539223 0.49394112 0.4969783 map loc_tag 100"  />
     <node pkg="tf" type="static_transform_publisher" name="loc_cam_to_loc_img" args="0.0 0.0 0.0 -0.5 0.5 -0.5 0.5 loc_cam loc_img 100"  />
 
 
